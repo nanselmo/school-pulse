@@ -20,7 +20,11 @@ params$hr_news
 library(xtable)
 library(knitr)
 library(rmarkdown)
+
 #on_track=params$hr_data[1:8]
-kable(params$hr_data)
+#kable(params$hr_data[1:9])
+xtable <- xtable(params$hr_data[1:9], digits=0,  
+               floating=FALSE)
+print(xtable, na.print = "", include.rownames = FALSE, comment=FALSE)
 ```
 

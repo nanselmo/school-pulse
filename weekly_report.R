@@ -17,7 +17,7 @@ merge.all <- function(by, ...) {
 
 #Change the directory to wherever your excel files are located
 #only for use locally, comment out before deploying to Shiny
-#setwd("/Users/administrator/Google Drive/Chavez/Data/RStudio Analysis/Weekly_Report")
+#setwd("/Users/administrator/Google Drive/Chavez/Data/RStudio Analysis/Weekly-School-Pulse")
 
 # subjects you want grades for
 subjects = c("CHGO READING FRMWK","MATHEMATICS STD", "SCIENCE  STANDARDS", "SOCIAL SCIENCE STD" )
@@ -25,20 +25,56 @@ subjects = c("CHGO READING FRMWK","MATHEMATICS STD", "SCIENCE  STANDARDS", "SOCI
 #load intervention file (a list of students with certain interventions)
 intervention_students<-read_excel("intervention_roster.xlsx")
 
+#load EL file (a list of students in the ELL Program)
+el_students<-read.csv("EL-Students-04-26-16.csv", header=FALSE, 
+                      col.names = c("StudentID","StudentName","StudentAge","StudentGrade","LanguageCode", "Language", "UnknownBoolean", "DisabilityCode", "ELL_Program_Year", "RPL", "WPL", "LPL", "SPL", "LitPL", "Composite", "TotalStudents"))
+transition_el_students<-read.csv("EL-Transitioning-04-26-16.csv", header=FALSE, col.names = c("H1","H2","H3","H4","H5","H6","H7","H8","H9","H10","H11","H12", "H13","H14","H15","H16","H17","H18","H19","H20","H21","H22", "H23", "Homeroom",
+                                                                                              "StudentID","StudentName","StudentAge","StudentGrade","LanguageCode", "Language", "UnknownBoolean", "DisabilityCode", "RPL", "WPL", "LPL", "SPL", "LitPL", "EntryDate1", "EntryDate2",  "TotalStudents", "Rubric", "ReportID", "Page", "ReportDate", "ReportTime"))
+#use entry date to add a TM1 or TM2 to the student as their program year
+transition_el_students$transitionTime<-(as.Date(Sys.Date())-as.Date(transition_el_students$EntryDate2, format="%m/%d/%Y"))/365
+transition_el_students$ELL_Program_Year <-trunc(transition_el_students$transitionTime) +1
+
+#only grab certain columns from EL files
+el_students_slim<-el_students%>%select(StudentID, ELL_Program_Year)
+transition_el_students_slim<-transition_el_students%>%select(StudentID, ELL_Program_Year)
+
+#add PY prefix to the PY year number
+el_students_slim <- transform(el_students_slim, ELL_Program_Year = sprintf('PY%d', ELL_Program_Year)) 
+
+#add TM prefix to the transitioning students
+transition_el_students_slim <- transform(transition_el_students_slim, ELL_Program_Year = sprintf('TY%d', ELL_Program_Year)) 
+
+#create one dataframe with all el students (transitioning and in program)
+all_el_students <- rbind(transition_el_students_slim, el_students_slim)
+
 
 #load all of the excel files
+## Grades (two weeks ago and current week)
 two_weeks_grades<-read.csv("Grades-03-04-16.csv")%>%select(StudentID,SubjectName, FinalAvg)%>%filter(SubjectName %in% subjects)
 this_week_grades<-read.csv("Grades-04-09-16.csv")%>%select(StudentID,SubjectName, FinalAvg)%>%filter(SubjectName %in% subjects)
+
+## Attendance (previous and current week)
 last_week_attend<-read.csv("Attendance-04-01-16.csv")%>%filter(Attendance.School=="CHAVEZ")%>%select(StudentID=Student.ID, Absences, Membership.Days)%>%mutate(Pct=round((Membership.Days-Absences)/Membership.Days, digits=2)) 
 this_week_attend<-read.csv("Attendance-04-07-16.csv")%>%filter(Attendance.School=="CHAVEZ")%>%select(StudentID=Student.ID, Absences, Membership.Days)%>%mutate(Pct=round((Membership.Days-Absences)/Membership.Days, digits=2)) 
+
+## Tardies (previous and current week)
 last_week_tardies<-read.csv("Tardies-04-01-16.csv")%>%select(StudentID=ID, Tardies=Total)
 this_week_tardies<-read.csv("Tardies-04-07-16.csv")%>%select(StudentID=ID, Tardies=Total)
+
+
+## ST Math (two weeks ago and previos week)[ST Math isn't available til the following Monday]
 last_week_jiji<-read.csv("JiJi-03-25-16.csv")%>%select(StudentID=school_student_id, JijiProgress=round(as.numeric(K_5_Progress)))
 this_week_jiji<-read.csv("JiJi-04-08-16.csv")%>%select(StudentID=school_student_id, JijiProgress=round(as.numeric(K_5_Progress)))
+
+## NEWSELA (Just need most current file (doesn't track trends yet))
 this_week_newsela<-read.csv("Newsela-03-17-16.csv")%>%select(StudentID=cps_student_id, NELA.Rct.Quiz=quiz_max_percentile,NELA.Lexile.Level=avg_lexile_level)
-this_week_news<-read.csv("Updates-04-07-16.csv")%>%filter(as.POSIXct(Timestamp)>=as.POSIXct("2016-04-01"))%>%rename(HR=Homerooms)
+
+## Lexia (previous and current week)
 last_week_lexia<-read.csv("Lexia-04-01-16.csv")%>%filter(Month==4)
 this_week_lexia<-read.csv("Lexia-04-07-16.csv")%>%filter(Month==4)
+
+## From Google Form
+this_week_news<-read.csv("Updates-04-07-16.csv")%>%filter(as.POSIXct(Timestamp)>=as.POSIXct("2016-04-01"))%>%rename(HR=Homerooms)
 
 #create the roster and hr list
 roster<-read.csv("Attendance-04-01-16.csv")%>%filter(Attendance.School=="CHAVEZ")%>%
@@ -136,11 +172,15 @@ this_week_complete=this_week_complete%>%mutate(OnTrack=
 #merge with intervention list
 this_week_complete=merge.all(by=c("StudentID"),this_week_complete, select(intervention_students, -Name))
 
+#merge with all EL Students list
+this_week_complete=merge.all(by=c("StudentID"),this_week_complete, all_el_students)
+
 #add Name Full column, which adds On-Track rating next to student Name
 this_week_complete$NameFull=paste(this_week_complete$StudentName," (",this_week_complete$OnTrack,")")
 
-#Move Full Name, Grade first
-this_week_complete <- this_week_complete[ ,c(32,30,1:29,31)]
+#Move Full Name, Grade first 
+this_week_complete <- this_week_complete[ ,c(32,33,30,1:29,31)]
+this_week_complete<-rename(this_week_complete,ELL=ELL_Program_Year) 
 
 #for web app
 this_week_app<-select(this_week_complete, -gpa.t, -Membership.Days, -Pct, -absencesFull, -TardiesFull, -JijiFull, -Intervention, -StudentID, - NameFull)
@@ -152,8 +192,9 @@ this_week_app<-select(this_week_complete, -gpa.t, -Membership.Days, -Pct, -absen
 #shea=filter(intervention,Intervention=="Shea")%>%select(-Intervention)
 
 
-#create data frame with just the comparrison values
+#create data frame with just the comparrison values (for the pdf reports)
 this_week_trends<-select(this_week_complete, -GPA, -gpaDiff, -Absences, -Membership.Days, -Pct, -absenceDiff, -Tardies, -tardyDiff, -JijiProgress, -jijiGain, -Level, -MonthlyMins -MonthlyUnits)
+
 #this_week_trends<-this_week_trends%>%select(-MonthlyMins, -MonthlyUnits)
 
 
@@ -173,7 +214,7 @@ create_class_data<-function(HR_number, class=FALSE){
 #create list of students whose on track is 2 or less
 create_admin_data<-function(grade1=0,grade2=8){
   admin_data<-this_week_app%>%filter(OnTrack<=2 & as.numeric(as.character(StudentGradeLevel))>=grade1 & as.numeric(as.character(StudentGradeLevel))<=grade2)
-  admin_data<-admin_data[1:14]%>%arrange(OnTrack,StudentGradeLevel,StudentHomeroom)
+  #admin_data<-admin_data[1:16]%>%arrange(OnTrack,StudentGradeLevel,StudentHomeroom)
   return (admin_data%>%rename('GR'=StudentGradeLevel, 'HR'=StudentHomeroom, "T"=OnTrack, 'R'=Read, 'M'=Math, 'S'=Sci, "Abs"=Absences, "Abs(+/-)"=absenceDiff, "GPA(+/-)"=gpaDiff, "T(+/-)"=tardyDiff))
 }
 
@@ -218,6 +259,19 @@ writeReports<-function(){
   )
   
  }
+}
+
+#Just write one report
+writeReport<-function(hr){
+    rmarkdown::render('loop_weekly_report.Rmd',  # file 2
+                      output_file =  paste(hr,"_Weekly_Report-05-02-16.pdf", sep=''), 
+                      output_dir = '/Users/administrator/Desktop/WeeklyReports3',
+                      params = list(
+                        hr_data = create_class_data(hr),
+                        hr_news = create_class_news(hr),
+                        hr=hr),
+                      "pdf_document"
+    )
 }
 
 writeCallan<-function(){
