@@ -1,0 +1,26 @@
+---
+params: 
+    hr_data: "none"
+    hr_news: "none"
+    hr: "test"
+---
+---
+title: `r paste("Weekly HR One Pager",params$hr, sep=" - ")`
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+geometry: margin=0.25in
+
+---
+#####Admin Notes
+```{r echo=FALSE, results = "asis"}
+params$hr_news
+```
+
+```{r echo=FALSE, results = "asis"}
+library(xtable)
+library(knitr)
+library(rmarkdown)
+#on_track=params$hr_data[1:8]
+kable(params$hr_data)
+```
+

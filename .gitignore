@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+# ignore all student data files
+*.csv
+*.xsl
+*.xslx

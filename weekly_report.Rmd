@@ -1,0 +1,45 @@
+
+
+---
+title: "Weekly HR One Pager - B212"
+date: March 4, 2016
+output: html_document
+geometry: margin=0in
+---
+
+```{r echo=FALSE,cache=FALSE, warning=FALSE, message=FALSE, results='hide'}
+source('weekly_report.R')
+```
+####About this One Pager 
+This is a prototype of a weekly 1-pager. It's intended to help teachers understand where each of their students is on 4 key metrics: GPA, Attendance, ST Math and Lexia (for LGC). Importantly, this 1-pager is designed to show how those metrics have changed over time. Celebrate successes with students. Talk with them and other colleagues about how to best support students who need it. As we know, GPA and Attendance are the two biggest predictors in high school and long-term success.
+
+#####Data
+Data is aggregated Friday early afternoons and is current up to that point. This means any grades or blended learning activity logged after Friday morning will not be reflected in these reports and instead will reflect in the subsequent week's reports.
+
+* Grades are cummulative across the year. I can include quarterly GPA/Grades if you'd like.
+* Tardies are also a total count for the year
+* On-Track rating (0-4) is the next priority to add
+
+#####Feedback
+Please let Nicki know any feedback - what can we change, what else would you like to see, are you noticing funky data? UGC might want additional blended learning metrics. You can also visit the app (link in the Morning Memo) for an interative version. Long term, I am working on an online tool with this information. Your students will be able to see their own personal data in order to reflect upon their goals and future high schools (especially our 7th and 8th graders).
+
+#####Trend Data
+
+* GPA shows biweekly change. 
+* Tardies, Jiji show weekly Change.
+* I'm still writing the code to add Attendance and Lexia trends
+
+#####Admin Notes
+```
+Each week, admin can submit important notes specific to your HR or Grade Level. Those will usually occupy this space.
+```
+
+ 
+```{r echo=FALSE, results = "asis"}
+library(xtable)
+library(knitr)
+kable(data_B212)
+```
+
+
+
