@@ -11,11 +11,11 @@ This project was built in RStudio and is being created for Cesar Chavez, with th
 ##How to Use This
 
 ### Download files from CPS' tools.
- * **Grades** - [Gradebook](gradebook.cps.k12.il.us)>Reports>ES Cummulative Grades Extract>Save as .csv
+ * **Grades** - [Gradebook](https://gradebook.cps.k12.il.us)>Reports>ES Cummulative Grades Extract>Save as .csv
  * **Attendance** - [Dashboard](https://dashboard.cps.edu/Dashboard)>School Profile>Att Detail (in left side panel)>Click on Bar Graph, current year> Click Options in the top right drop down>Export Detail> to CSV
- * **Tardies** - [Gradebook](gradebook.cps.k12.il.us)>Attendance>Excessive Absence Report>Select the Date, All, T (for Tardy)>Export to Excel
- * **English Learners** *(must have Principal Role)* - [SIM](sim.cps.k12.il.us)>My Report in top Nav Bar, then All Reports>ELL Reports> CPS Students in Program>Output as CSV
- * **Lexia** - [myLexia](mylexia.com)>View Progress Report>Export>Request Export> Check Email for Link
+ * **Tardies** - [Gradebook](https://gradebook.cps.k12.il.us)>Attendance>Excessive Absence Report>Select the Date, All, T (for Tardy)>Export to Excel
+ * **English Learners** *(must have Principal Role)* - [SIM](https://sim.cps.k12.il.us)>My Report in top Nav Bar, then All Reports>ELL Reports> CPS Students in Program>Output as CSV
+ * **Lexia** - [myLexia](https://mylexia.com)>View Progress Report>Export>Request Export> Check Email for Link
  * **ST Math** - emailed weekly, called the Progress Completion Report (PCR). (Copy and paste to new, non-password protected csv)
  * **NEWSela** - also emailed weekly, called Usage Report. (Copy and paste to new, non-password protected csv)
  * **Administrative Notes** - comes from a [Google Form](http://goo.gl/forms/GPIlJi7KRo) for administrators/clerks to add to
